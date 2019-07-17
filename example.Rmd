@@ -16,7 +16,7 @@ set.seed(123)
 
 ## Data
 ```{r}
-raw_dat = as.data.frame()
+raw_dat = as.data.frame(diamonds)
 head(raw_dat)
 ```
 
@@ -77,7 +77,7 @@ pred_dt = predict(mod_dt, dat_test, type = 'prob')
 ## Visualize your tree
 Use the `prp` function
 ```{r}
-prp(mod_dt$finalModel, box.palette = "Reds")
+prp(mod_dt$finalModel, box.palette = "auto")
 ```
 
 
