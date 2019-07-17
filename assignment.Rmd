@@ -1,0 +1,97 @@
+---
+title: "Decision Tree Assignment"
+author: "Scott Stoltzman"
+date: "7/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+library('caret')
+library('GGally')
+library('rpart.plot')
+set.seed(123)
+```
+
+## Data
+```{r}
+raw_dat = as.data.frame(mpg) %>%
+  mutate(mpg = (cty + hwy)/2) %>%
+  select(-cty, -hwy)
+head(raw_dat)
+```
+
+
+## Group your mpg into "high, medium, low" where mpg:
+high = >90%
+medium = 30% - 90%
+low = <30%
+(hint: find deciles group data for mpg)
+*Replace* your price column with this new data
+```{r}
+mpg_buckets = YOU_FINISH_THIS
+
+
+dat = raw_dat %>%
+  mutate(mpg = YOU_FINISH_THIS)
+```
+
+
+## Randomly sample 1% of your data to visualize and plot using ggpairs
+```{r, message=FALSE, warning=FALSE}
+dat %>% 
+  YOU_FINISH_THIS
+```
+
+
+## Split data to test / train
+Use 85% of the data for training 
+```{r}
+training_split = YOU_FINISH_THIS
+smp_size = YOU_FINISH_THIS
+dat_index = YOU_FINISH_THIS
+dat_train = YOU_FINISH_THIS
+dat_test = YOU_FINISH_THIS
+```
+
+
+## Create a decision tree using `caret::train` and the algorithm `rpart`
+```{r}
+tctrl = trainControl(YOU_FINISH_THIS)
+
+mod_dt = train(YOU_FINISH_THIS)
+
+pred_dt = predict(YOU_FINISH_THIS)
+```
+
+## Visualize your tree
+Use the `prp` function
+```{r}
+prp(YOU_FINISH_THIS)
+```
+
+
+## Predict whether the following car would be "high, medium, or low" mpg
+```{r}
+new_car = data.frame(
+  manufacturer = 'audi',
+  model = 'a4',
+  displ = 2.3,
+  year = 2000,
+  cyl = 6,
+  trans = 'auto(l5)',
+  drv = 'f',
+  fl = 'p',
+  class = 'compact'
+)
+predict(YOU_FINISH_THIS)
+```
+
+
+## Create a small write up on your model
+
+Describe your results.
+Show the model parameters, confusion matrix, etc.
+Explain why you chose to use the parameters you did for this decision tree model.
+

@@ -1,0 +1,106 @@
+---
+title: "Decision Tree Example"
+author: "Scott Stoltzman"
+date: "7/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('tidyverse')
+library('caret')
+library('GGally')
+library('rpart.plot')
+set.seed(123)
+```
+
+## Data
+```{r}
+raw_dat = as.data.frame()
+head(raw_dat)
+```
+
+
+## Group your prices into "high, medium, low" where price:
+high = >75%
+medium = 25% - 75%
+low = <25%
+(hint: find quartiles group data for prices)
+*Replace* your price column with this new data
+```{r}
+price_buckets = quantile(raw_dat$price)
+
+dat = raw_dat %>%
+  mutate(price = if_else(price < price_buckets[2],
+                          "low",
+                          if_else(price > price_buckets[4],
+                                  "high",
+                                  "medium")))
+```
+
+
+## Randomly sample 1% of your data to visualize and plot using ggpairs
+```{r, message=FALSE, warning=FALSE}
+dat %>% 
+  sample_n(0.01 * nrow(dat)) %>%
+  GGally::ggpairs()
+```
+
+
+## Split data to test / train
+Use 75% of the data for training 
+```{r}
+training_split = 0.75
+smp_size = floor(training_split * nrow(dat))
+dat_index = sample(seq_len(nrow(dat)), size = smp_size)
+dat_train = dat[dat_index,]
+dat_test = dat[-dat_index,]
+```
+
+
+## Create a decision tree using `caret::train` and the algorithm `rpart`
+```{r}
+tctrl = trainControl(method = 'cv',
+                     number = 10,
+                     savePredictions = TRUE,
+                     classProbs = TRUE)
+
+mod_dt = train(dat_train %>% select(-price), 
+                dat_train$price, 
+                method = 'rpart',
+                parms = list(split = "information"),
+                trControl=tctrl)
+
+pred_dt = predict(mod_dt, dat_test, type = 'prob')
+```
+
+## Visualize your tree
+Use the `prp` function
+```{r}
+prp(mod_dt$finalModel, box.palette = "Reds")
+```
+
+
+## Predict whether the following diamond would be "high, medium, or low" price
+```{r}
+new_diamond = data.frame(
+  carat = 0.92,
+  cut = ordered('Premium'),
+  color = ordered('J'),
+  clarity = ordered('SI2'),
+  depth = 63.1,
+  table = 58,
+  x = 4.31,
+  y = 4.41,
+  z = 2.70
+)
+predict(mod_dt, new_diamond)
+```
+
+
+## Create a small write up on your model
+
+Describe your results.
+Show the model parameters, confusion matrix, etc.
+Explain why you chose to use the parameters you did for this decision tree model.
+
