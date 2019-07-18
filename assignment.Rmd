@@ -18,7 +18,7 @@ set.seed(123)
 ```{r}
 raw_dat = as.data.frame(mpg) %>%
   mutate(mpg = (cty + hwy)/2) %>%
-  select(-cty, -hwy)
+  select(-cty, -hwy, -model, -fl)
 head(raw_dat)
 ```
 
@@ -30,18 +30,14 @@ low = <30%
 (hint: find deciles group data for mpg)
 *Replace* your price column with this new data
 ```{r}
-mpg_buckets = YOU_FINISH_THIS
-
+mpg_buckets = quantile(raw_dat$mpg)
 
 dat = raw_dat %>%
-  mutate(mpg = YOU_FINISH_THIS)
-```
-
-
-## Randomly sample 1% of your data to visualize and plot using ggpairs
-```{r, message=FALSE, warning=FALSE}
-dat %>% 
-  YOU_FINISH_THIS
+  mutate(mpg = if_else(mpg < mpg_buckets[2],
+                          "low",
+                          if_else(mpg > mpg_buckets[4],
+                                  "high",
+                                  "medium")))
 ```
 
 
@@ -58,11 +54,11 @@ dat_test = YOU_FINISH_THIS
 
 ## Create a decision tree using `caret::train` and the algorithm `rpart`
 ```{r}
-tctrl = trainControl(YOU_FINISH_THIS)
+tctrl = YOU_FINISH_THIS
 
-mod_dt = train(YOU_FINISH_THIS)
+mod_dt = YOU_FINISH_THIS
 
-pred_dt = predict(YOU_FINISH_THIS)
+pred_dt = YOU_FINISH_THIS
 ```
 
 ## Visualize your tree
