@@ -1,0 +1,90 @@
+---
+title: "In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('mlbench')
+library('naivebayes')
+library('caret')
+library('tidyverse')
+
+data("PimaIndiansDiabetes")
+
+dat = PimaIndiansDiabetes %>% 
+  as_tibble() %>%
+  rename(Class = diabetes) %>%
+  mutate(Class = as.factor(Class))
+
+head(dat)
+```
+
+
+```{r}
+split_test_train = function(df, train_pct = 0.70, seed_number = 123){
+  set.seed(seed_number)
+  # create a unique column name so it doesn't overwrite possible existing'id'
+  df_id = df %>% 
+    mutate(custom_id_oi234098df = row_number())
+  
+  df_train = df_id %>%
+    sample_frac(train_pct)
+  
+  df_test = df_id %>%
+    anti_join(df_train, by = 'custom_id_oi234098df') %>%
+    select(-custom_id_oi234098df)
+  
+  df_train = df_train %>%
+    select(-custom_id_oi234098df)
+  
+  df_split = list(train = as.data.frame(df_train), test = as.data.frame(df_test))
+  return(df_split)
+}
+```
+
+
+
+```{r}
+dat_split = dat %>%
+  split_test_train()
+
+dat_train = dat_split$train
+dat_test = dat_split$test
+```
+
+
+```{r}
+dat_train_up = upSample(
+  dat_train %>% select(-Class),
+  dat_train$Class)
+```
+
+
+
+```{r}
+train_control = trainControl(
+  method = 'cv',
+  number = 10
+)
+
+model_nb = train(
+  dat_train_up %>% select(-Class),
+  dat_train_up$Class,
+  method = 'naive_bayes'
+)
+
+model_nb
+```
+
+
+```{r}
+predictions = predict(model_nb, newdata = dat_test)
+
+confusionMatrix(predictions, dat_test$Class)
+```
+
+```{r}
+plot(varImp(model_nb))
+```
+
