@@ -1,0 +1,55 @@
+---
+title: "In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('mlbench')
+library('naivebayes')
+library('caret')
+library('tidyverse')
+
+data("PimaIndiansDiabetes")
+
+dat = PimaIndiansDiabetes %>% 
+  as_tibble() %>%
+  rename(Class = diabetes) %>%
+  mutate(Class = as.factor(Class))
+
+head(dat)
+```
+
+
+Write a function to get our test/train split
+```{r}
+
+```
+
+
+Use the function above to create a `dat_train` and `dat_test` set.
+```{r}
+
+```
+
+Resample
+```{r}
+
+```
+
+
+Train a model using `method = 'naive_bayes'` show the model.
+```{r}
+
+```
+
+Create a confusion matrix
+```{r}
+
+```
+
+Plot the variable importance.
+```{r}
+
+```
+
