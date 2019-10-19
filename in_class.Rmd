@@ -10,6 +10,8 @@ library('naivebayes')
 library('caret')
 library('tidyverse')
 
+source('custom_functions.R')
+
 data("PimaIndiansDiabetes")
 
 dat = PimaIndiansDiabetes %>% 
@@ -21,6 +23,41 @@ head(dat)
 ```
 
 
+```{r}
+nb_data = read_csv('Naive Bayes Classifier - By Hand - Sheet2.csv')
+head(nb_data)
+```
+
+```{r}
+# How to calculate manually Naive Bayes Classifier
+nb_data %>%
+  group_by(Weather, Play) %>%
+  count() %>%
+  spread(key=Play, value=n) %>%
+  mutate(No = if_else(is.na(No), as.integer(0), No))
+```
+
+
+
+```{r}
+a = nb_data %>%
+  group_by(Weather) %>%
+  summarize(weather_n = n())
+  
+b = nb_data %>%
+  group_by(Play, Weather) %>%
+  summarize(grouped_n = n())
+
+c = b %>%
+  left_join(a, by = 'Weather') %>%
+  mutate(answer = grouped_n / weather_n)
+```
+
+
+
+
+
+
 Write a function to get our test/train split
 ```{r}
 
@@ -29,27 +66,43 @@ Write a function to get our test/train split
 
 Use the function above to create a `dat_train` and `dat_test` set.
 ```{r}
+split_dat = dat%>%
+  split_test_train() # in custom_functions.R
 
+train_dat = split_dat$train
+test_dat  = split_dat$test
 ```
 
 Resample
 ```{r}
-
+dat_train_up = upSample(train_dat %>% select(-Class), train_dat %>% select(Class) %>% pull()) 
 ```
 
 
 Train a model using `method = 'naive_bayes'` show the model.
 ```{r}
+train_control = trainControl(method='cv', number=10)
+model_nb = train(
+  # dat_train_up %>% select(-Class), different way to pass in x,y
+  # dat_train_up$Class,
+  Class ~ .,
+  data = dat_train_up,
+  trControl = train_control,
+  method = 'naive_bayes'
+)
 
+model_nb
 ```
 
 Create a confusion matrix
 ```{r}
-
+predictions = predict(model_nb, newdata = test_dat, type = 'raw')
+actuals = test_dat$Class
+confusionMatrix(predictions, actuals)
 ```
 
 Plot the variable importance.
 ```{r}
-
+plot(caret::varImp(model_nb))
 ```
 
